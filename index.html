@@ -1,1 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriFind</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F2F0EC;--surface:#FFF;--surface2:#F7F6F3;
+  --ink:#1C1B19;--ink2:#6B6860;--ink3:#A8A5A0;
+  --border:rgba(28,27,25,.10);--border2:rgba(28,27,25,.06);
+  --green:#1A7A4A;--green-bg:#EBF7F1;--green-bd:rgba(26,122,74,.20);
+  --amber:#B45309;--amber-bg:#FEF3E2;
+  --blue:#1D6FB5;--blue-bg:#EBF3FC;
+  --purple:#6B3FA0;--purple-bg:#F3EDFA;
+  --red:#C0392B;--red-bg:#FDECEB;
+  --font:'Plus Jakarta Sans',sans-serif;
+  --r:14px;--rsm:8px;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+.wrap{max-width:520px;margin:0 auto;padding:0 16px 80px}
 
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 0 20px}
+.logo{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.logo span{color:var(--green)}
+.loc-pill{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink2);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:6px 12px;cursor:pointer;transition:border-color .15s}
+.loc-pill:hover{border-color:var(--green);color:var(--green)}
+.loc-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:12px}
+.card-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:16px}
+
+/* MACRO ROWS */
+.mrow{display:grid;grid-template-columns:76px 1fr auto;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border2)}
+.mrow:last-child{border-bottom:none;padding-bottom:0}
+.mrow:first-of-type{padding-top:0}
+.mlabel{display:flex;flex-direction:column;gap:2px}
+.mname{font-size:13px;font-weight:700;color:var(--ink)}
+.munit{font-size:10px;color:var(--ink3);font-weight:500}
+.sval{display:flex;align-items:center;gap:10px}
+.sval input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:3px;border-radius:2px;outline:none;cursor:pointer;transition:opacity .2s}
+.sval input[type=range]:disabled{opacity:.25;pointer-events:none}
+.sval input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--tc,#1C1B19);cursor:pointer;border:2.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.mval-wrap{display:flex;align-items:center;gap:7px;width:136px;flex-shrink:0;justify-content:flex-end}
+.mval-input{font-family:var(--font);font-size:13px;font-weight:700;color:var(--ink);background:var(--surface2);border:1px solid var(--border);border-radius:6px;width:54px;padding:4px 6px;text-align:center;outline:none;transition:border-color .15s,opacity .2s;-moz-appearance:textfield}
+.mval-input::-webkit-inner-spin-button,.mval-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.mval-input:focus{border-color:var(--green)}
+.mval-input:disabled{opacity:.3;pointer-events:none}
+.mval-unit{font-size:10px;font-weight:600;color:var(--ink3)}
+
+/* color tracks */
+.r-cal  input[type=range]{background:linear-gradient(to right,#F59E0B 0%,#F59E0B var(--p,50%),#E8E6E0 var(--p,50%),#E8E6E0 100%);--tc:#B45309}
+.r-prot input[type=range]{background:linear-gradient(to right,#22C55E 0%,#22C55E var(--p,50%),#E8E6E0 var(--p,50%),#E8E6E0 100%);--tc:#1A7A4A}
+.r-carb input[type=range]{background:linear-gradient(to right,#60A5FA 0%,#60A5FA var(--p,50%),#E8E6E0 var(--p,50%),#E8E6E0 100%);--tc:#1D6FB5}
+.r-fat  input[type=range]{background:linear-gradient(to right,#A78BFA 0%,#A78BFA var(--p,50%),#E8E6E0 var(--p,50%),#E8E6E0 100%);--tc:#6B3FA0}
+
+/* TOGGLE */
+.tgl-wrap{display:flex;align-items:center;gap:5px}
+.tgl{position:relative;width:34px;height:19px;cursor:pointer;flex-shrink:0}
+.tgl input{opacity:0;width:0;height:0;position:absolute}
+.tgl-t{position:absolute;inset:0;background:var(--border);border-radius:10px;border:1px solid var(--border);transition:background .2s,border-color .2s}
+.tgl input:checked~.tgl-t{background:var(--green);border-color:var(--green)}
+.tgl-k{position:absolute;top:2px;left:2px;width:13px;height:13px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15);pointer-events:none}
+.tgl input:checked~.tgl-k{transform:translateX(15px)}
+.any-lbl{font-size:11px;font-weight:600;color:var(--ink3);cursor:pointer;user-select:none}
+
+/* FIND BTN */
+.find-btn{width:100%;font-family:var(--font);font-size:14px;font-weight:700;background:var(--ink);color:#fff;border:none;cursor:pointer;padding:14px;border-radius:var(--r);transition:opacity .15s,transform .1s;letter-spacing:.2px;margin-bottom:24px}
+.find-btn:hover{opacity:.85}
+.find-btn:active{transform:scale(.99)}
+
+/* RESULTS */
+.rhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.rlabel{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3)}
+.rbadge{font-size:12px;font-weight:700;background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd);padding:3px 10px;border-radius:20px}
+
+/* REST GROUP */
+.rg{margin-bottom:20px}
+.rg-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:0 2px}
+.rg-logo{width:28px;height:28px;border-radius:7px;overflow:hidden;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.rg-logo img{width:22px;height:22px;object-fit:contain}
+.rg-name{font-size:14px;font-weight:700;flex:1}
+.rg-meta{font-size:12px;color:var(--ink3)}
+/* REST LOGO IMG */
+
+/* ITEM CARD */
+.ic{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:6px;transition:border-color .15s,box-shadow .15s;position:relative}
+.ic:hover{border-color:rgba(28,27,25,.2);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.ic.top{border-color:var(--green)}
+.tp-badge{position:absolute;top:-1px;right:12px;font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;background:var(--green);color:#fff;padding:3px 8px;border-radius:0 0 6px 6px}
+.ic-chain-row{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.ic-logo{width:22px;height:22px;border-radius:5px;overflow:hidden;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.ic-logo img{width:16px;height:16px;object-fit:contain}
+.ic-chain-name{font-size:11px;font-weight:700;color:var(--ink3);flex:1;text-transform:uppercase;letter-spacing:.5px}
+.ic-name{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:10px;color:var(--ink)}
+.ic-price{font-size:12px;font-weight:700;color:var(--ink2);white-space:nowrap}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.ch{font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px}
+.ch-cal{background:var(--amber-bg);color:var(--amber)}
+.ch-prot{background:var(--green-bg);color:var(--green)}
+.ch-carb{background:var(--blue-bg);color:var(--blue)}
+.ch-fat{background:var(--purple-bg);color:var(--purple)}
+.fbars{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.fb{display:flex;align-items:center;gap:8px}
+.fb-l{font-size:10px;font-weight:600;color:var(--ink3);width:44px}
+.fb-t{flex:1;height:3px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.fb-f{height:100%;border-radius:2px;transition:width .5s cubic-bezier(.16,1,.3,1)}
+.fb-p{font-size:10px;font-weight:700;width:30px;text-align:right}
+.ic-ings{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.ic-ing{font-size:11px;font-weight:500;color:var(--ink2);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 7px;white-space:nowrap}
+.ic-excl{margin-bottom:10px;display:flex;flex-direction:column;gap:4px}
+.ic-excl-item{font-size:11px;font-weight:500;color:var(--amber);background:var(--amber-bg);border:1px solid rgba(180,83,9,.15);border-radius:4px;padding:3px 8px;line-height:1.4}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--ink3)}
+.empty-t{font-size:16px;font-weight:700;color:var(--ink2);margin:8px 0 6px}
+.empty-s{font-size:13px;line-height:1.6}
+
+/* SHEET */
+.ov{display:none;position:fixed;inset:0;z-index:200;background:rgba(28,27,25,.45);align-items:flex-end;justify-content:center}
+.ov.open{display:flex;animation:fi .15s}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.sheet{background:var(--surface);border-radius:18px 18px 0 0;padding:20px 20px 36px;width:100%;max-width:520px;animation:su .25s cubic-bezier(.16,1,.3,1)}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:32px;height:3px;border-radius:2px;background:var(--border);margin:0 auto 16px}
+.sh-name{font-size:17px;font-weight:800;margin-bottom:3px}
+.sh-rest{font-size:12px;color:var(--ink3);margin-bottom:16px}
+.sh-macros{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:18px}
+.sm{background:var(--surface2);border-radius:8px;padding:10px 6px;text-align:center}
+.sm-v{font-size:17px;font-weight:800;line-height:1;margin-bottom:3px}
+.sm-l{font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3)}
+.sh-div{height:1px;background:var(--border);margin-bottom:14px}
+.sh-ol{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.olinks{display:flex;flex-direction:column;gap:7px}
+.ol{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:border-color .15s,background .15s}
+.ol:hover{border-color:var(--green);background:var(--green-bg)}
+.ol-i{font-size:18px;width:32px;text-align:center;flex-shrink:0}
+.ol-t{flex:1}
+.ol-n{font-size:13px;font-weight:700}
+.ol-s{font-size:11px;color:var(--ink3);margin-top:1px}
+.ol-a{font-size:16px;color:var(--ink3)}
+.sh-cancel{width:100%;margin-top:12px;font-family:var(--font);font-size:13px;font-weight:600;color:var(--ink2);background:none;border:1px solid var(--border);border-radius:9px;padding:11px;cursor:pointer;transition:all .15s}
+.sh-cancel:hover{background:var(--surface2)}
+.rw{display:none}
+.rw.on{display:block}
+@media(min-width:540px){.sheet{border-radius:18px;max-width:440px;margin:auto}.ov{align-items:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">nutri<span>find</span></div>
+  <div style="font-size:11px;font-weight:600;color:var(--ink3)">12 chains · 100+ items</div>
+</header>
+
+<div class="card">
+  <div class="card-title">What I have left today</div>
+
+  <div class="mrow r-cal">
+    <div class="mlabel"><div class="mname">Calories</div><div class="munit">kcal max</div></div>
+    <div class="sval"><input type="range" id="sl-cal" min="100" max="1500" value="600" step="25" oninput="slide('cal')"></div>
+    <div class="mval-wrap">
+      <input type="number" class="mval-input" id="v-cal" value="600" min="100" max="1500" oninput="typeVal('cal')" onblur="clampVal('cal')">
+      <span class="mval-unit">kcal</span>
+      <label class="tgl"><input type="checkbox" id="dc-cal" onchange="dc('cal')"><div class="tgl-t"></div><div class="tgl-k"></div></label>
+      <span class="any-lbl" onclick="document.getElementById('dc-cal').click()">any</span>
+    </div>
+  </div>
+
+  <div class="mrow r-prot">
+    <div class="mlabel"><div class="mname">Protein</div><div class="munit">g minimum</div></div>
+    <div class="sval"><input type="range" id="sl-prot" min="0" max="150" value="50" step="5" oninput="slide('prot')"></div>
+    <div class="mval-wrap">
+      <input type="number" class="mval-input" id="v-prot" value="50" min="0" max="150" oninput="typeVal('prot')" onblur="clampVal('prot')">
+      <span class="mval-unit">g</span>
+      <label class="tgl"><input type="checkbox" id="dc-prot" onchange="dc('prot')"><div class="tgl-t"></div><div class="tgl-k"></div></label>
+      <span class="any-lbl" onclick="document.getElementById('dc-prot').click()">any</span>
+    </div>
+  </div>
+
+  <div class="mrow r-carb">
+    <div class="mlabel"><div class="mname">Carbs</div><div class="munit">g maximum</div></div>
+    <div class="sval"><input type="range" id="sl-carb" min="0" max="200" value="60" step="5" oninput="slide('carb')" disabled></div>
+    <div class="mval-wrap">
+      <input type="number" class="mval-input" id="v-carb" value="60" min="0" max="200" oninput="typeVal('carb')" onblur="clampVal('carb')" disabled style="opacity:.3">
+      <span class="mval-unit">g</span>
+      <label class="tgl"><input type="checkbox" id="dc-carb" checked onchange="dc('carb')"><div class="tgl-t"></div><div class="tgl-k"></div></label>
+      <span class="any-lbl" onclick="document.getElementById('dc-carb').click()">any</span>
+    </div>
+  </div>
+
+  <div class="mrow r-fat">
+    <div class="mlabel"><div class="mname">Fat</div><div class="munit">g maximum</div></div>
+    <div class="sval"><input type="range" id="sl-fat" min="0" max="100" value="25" step="5" oninput="slide('fat')" disabled></div>
+    <div class="mval-wrap">
+      <input type="number" class="mval-input" id="v-fat" value="25" min="0" max="100" oninput="typeVal('fat')" onblur="clampVal('fat')" disabled style="opacity:.3">
+      <span class="mval-unit">g</span>
+      <label class="tgl"><input type="checkbox" id="dc-fat" checked onchange="dc('fat')"><div class="tgl-t"></div><div class="tgl-k"></div></label>
+      <span class="any-lbl" onclick="document.getElementById('dc-fat').click()">any</span>
+    </div>
+  </div>
+
+</div>
+
+<div id="cal-hint" style="display:none;margin:-4px 0 12px;padding:10px 14px;background:var(--amber-bg);border:1px solid rgba(180,83,9,.18);border-radius:var(--rsm);font-size:12px;font-weight:600;color:var(--amber);line-height:1.4"></div>
+<button class="find-btn" onclick="find()">Find meals that fit →</button>
+
+<div class="rw" id="rw">
+  <div class="rhead">
+    <div class="rlabel" id="rl">Matching meals</div>
+    <div class="rbadge" id="rb">0 found</div>
+  </div>
+  <div id="price-note" style="display:none;font-size:11px;color:var(--ink3);margin:-8px 0 14px;padding:0 2px">~ prices are estimates and may vary by location</div>
+  <div id="rl-list"></div>
+</div>
+
+</div>
+
+<!-- SHEET -->
+<div class="ov" id="ov" onclick="csht(event)">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-name" id="sh-n"></div>
+    <div class="sh-rest" id="sh-r"></div>
+    <div class="sh-macros" id="sh-m"></div>
+    <div class="sh-div"></div>
+    <div class="sh-ol">Order from</div>
+    <div class="olinks" id="sh-l"></div>
+    <button class="sh-cancel" onclick="document.getElementById('ov').classList.remove('open')">Cancel</button>
+  </div>
+</div>
+
+<script>
+const DB=[
+  {id:'cfa',name:'Chick-fil-A',abbr:'CFA',color:'#E31837',lb:'#FFF0F0',
+   logo:'https://www.chick-fil-a.com/favicon.ico',
+   url:'https://www.chick-fil-a.com',
+   links:[{n:'Chick-fil-A app',i:'🍗',s:'Order pickup or delivery',u:'https://www.chick-fil-a.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'},{n:'Uber Eats',i:'🚗',s:'Delivery available',u:'https://ubereats.com'}],
+   items:[
+    {n:'Grilled Nuggets (12 ct)',cal:200,pro:37,carb:2,fat:4,p:'$9.29'},
+    {n:'Grilled Nuggets (8 ct)',cal:130,pro:25,carb:1,fat:3,p:'$6.19'},
+    {n:'Grilled Chicken Sandwich',cal:380,pro:40,carb:40,fat:7,p:'$5.89'},
+    {n:'Grilled Chicken Club Sandwich',cal:460,pro:44,carb:41,fat:12,p:'$8.19'},
+    {n:'Grilled Cool Wrap',cal:350,pro:37,carb:32,fat:8,p:'$9.09'},
+    {n:'Grilled Market Salad + Chicken',cal:340,pro:34,carb:22,fat:11,p:'$10.49',excl:['Harvest nut granola (~70 kcal)','Apple cider vinaigrette dressing (~140 kcal)']},
+    {n:'Egg White Grill',cal:300,pro:26,carb:30,fat:7,p:'$5.29'},
+    {n:'Spicy Deluxe Sandwich',cal:500,pro:36,carb:43,fat:20,p:'$6.39'},
+    {n:'Cobb Salad + Grilled Chicken',cal:430,pro:42,carb:14,fat:22,p:'$11.29',excl:['Avocado lime ranch dressing (~310 kcal)']},
+    {n:'Grilled Chicken Nuggets (6 ct)',cal:100,pro:19,carb:1,fat:2,p:'$4.59'},
+  ]},
+  {id:'chipotle',name:'Chipotle',abbr:'CMG',color:'#A81612',lb:'#FFF0EF',
+   logo:'https://www.chipotle.com/favicon.ico',
+   url:'https://www.chipotle.com',
+   links:[{n:'Chipotle app',i:'🌯',s:'Order ahead, skip the line',u:'https://www.chipotle.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'},{n:'Uber Eats',i:'🚗',s:'Delivery available',u:'https://ubereats.com'}],
+   items:[
+    {n:'Chicken Salad Bowl (no rice)',cal:395,pro:45,carb:22,fat:15,p:'$10.80',ing:['Romaine lettuce base','Grilled chicken','Fresh tomato salsa','Fajita veggies','Sour cream']},
+    {n:'Steak Salad Bowl',cal:415,pro:42,carb:24,fat:17,p:'$11.20',ing:['Romaine lettuce base','Steak','Fresh tomato salsa','Fajita veggies','Sour cream']},
+    {n:'Chicken Burrito Bowl',cal:655,pro:51,carb:72,fat:17,p:'$10.80',ing:['White rice','Black beans','Grilled chicken','Fresh tomato salsa','Roasted chili-corn salsa','Sour cream','Cheese']},
+    {n:'Barbacoa Salad Bowl',cal:430,pro:38,carb:24,fat:18,p:'$11.55',ing:['Romaine lettuce base','Barbacoa','Black beans','Fresh tomato salsa','Fajita veggies','Sour cream']},
+    {n:'Sofritas Bowl (vegan)',cal:445,pro:22,carb:60,fat:14,p:'$9.80',ing:['Brown rice','Black beans','Sofritas','Fresh tomato salsa','Roasted chili-corn salsa','Guacamole']},
+    {n:'Chicken Tacos (3 soft)',cal:510,pro:36,carb:55,fat:15,p:'$10.55',ing:['3 flour tortillas','Grilled chicken','Fresh tomato salsa','Shredded cheese','Sour cream','Romaine lettuce']},
+    {n:'Steak Burrito Bowl',cal:665,pro:48,carb:73,fat:19,p:'$11.55',ing:['White rice','Pinto beans','Steak','Fresh tomato salsa','Roasted chili-corn salsa','Sour cream','Cheese']},
+    {n:'Chicken Quesadilla (half)',cal:490,pro:35,carb:40,fat:20,p:'$8.50',ing:['Large flour tortilla (half)','Grilled chicken','Monterey Jack cheese','Fajita veggies']},
+    {n:'Veggie Burrito Bowl',cal:395,pro:15,carb:60,fat:12,p:'$9.15',ing:['Brown rice','Black beans','Fajita veggies','Fresh tomato salsa','Roasted chili-corn salsa','Romaine lettuce']},
+    {n:'Carnitas Salad Bowl',cal:430,pro:36,carb:25,fat:20,p:'$11.20',ing:['Romaine lettuce base','Carnitas','Black beans','Fresh tomato salsa','Fajita veggies','Sour cream']},
+  ]},
+  {id:'sweetgreen',name:'Sweetgreen',abbr:'SG',color:'#1A6B3C',lb:'#EDF7F2',
+   logo:'https://www.sweetgreen.com/favicon.ico',
+   url:'https://www.sweetgreen.com',
+   links:[{n:'Sweetgreen app',i:'🥗',s:'Order ahead, skip the line',u:'https://www.sweetgreen.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'}],
+   items:[
+    {n:'Chicken + Brussels Bowl',cal:490,pro:48,carb:38,fat:18,p:'$13.95',ing:['Shredded kale','Roasted brussels sprouts','Roasted chicken','Sweet potato','Apples','Goat cheese','Balsamic vinaigrette']},
+    {n:'Kale Caesar + Grilled Chicken',cal:470,pro:42,carb:22,fat:22,p:'$14.45',ing:['Chopped romaine','Shredded kale','Grilled chicken','Parmesan crisps','Shaved parmesan','Caesar dressing']},
+    {n:'Harvest Bowl',cal:705,pro:47,carb:68,fat:28,p:'$14.95',ing:['Shredded kale','Roasted chicken','Roasted sweet potato','Apples','Dried cranberries','Toasted almonds','Wild rice','Balsamic vinaigrette'],excl:['Extra toasted almonds if added (+~50 kcal)']},
+    {n:'Shroomami Bowl',cal:395,pro:18,carb:52,fat:14,p:'$12.45',ing:['Shredded kale','Wild rice','Roasted mushrooms','Shredded cabbage','Roasted tofu','Cucumber','Miso sesame ginger dressing']},
+    {n:'Guac Greens + Chicken',cal:530,pro:38,carb:36,fat:26,p:'$14.95',ing:['Chopped romaine','Shredded cabbage','Grilled chicken','Tomatoes','Tortilla chips','Guacamole','Lime cilantro jalapeño vinaigrette']},
+    {n:'Fish Taco Bowl',cal:445,pro:32,carb:48,fat:14,p:'$14.45',ing:['Chopped romaine','Shredded cabbage','Blackened fish','Wild rice','Roasted corn','Cucumber','Lime cilantro jalapeño vinaigrette']},
+    {n:'Crispy Chicken Salad',cal:560,pro:36,carb:42,fat:24,p:'$14.45',ing:['Chopped romaine','Crispy chicken','Shredded cabbage','Tomatoes','Pickled onions','Buttermilk ranch dressing']},
+    {n:'Garden Cobb + Chicken',cal:500,pro:44,carb:18,fat:26,p:'$14.95',ing:['Chopped romaine','Grilled chicken','Hard boiled egg','Bacon','Tomatoes','Avocado','Blue cheese','Balsamic vinaigrette']},
+    {n:'Warm Bowl – Chicken Pesto',cal:610,pro:42,carb:58,fat:22,p:'$14.95',ing:['Warm quinoa','Roasted chicken','Roasted broccoli','Tomatoes','Shaved parmesan','Basil pesto vinaigrette']},
+  ]},
+  {id:'subway',name:'Subway',abbr:'SUB',color:'#007A3D',lb:'#EDF7F2',
+   logo:'https://www.subway.com/favicon.ico',
+   url:'https://www.subway.com',
+   links:[{n:'Subway app',i:'🥪',s:'Order pickup or delivery',u:'https://www.subway.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'}],
+   items:[
+    {n:'6" Rotisserie Chicken',cal:350,pro:36,carb:39,fat:6,p:'$8.49'},
+    {n:'Footlong Rotisserie Chicken',cal:700,pro:72,carb:78,fat:12,p:'$13.49'},
+    {n:'6" Turkey Breast',cal:270,pro:20,carb:39,fat:4,p:'$6.99'},
+    {n:'Footlong Turkey Breast',cal:540,pro:40,carb:78,fat:8,p:'$10.99'},
+    {n:'Protein Bowl – Rotisserie Chicken',cal:290,pro:40,carb:12,fat:9,p:'$9.99'},
+    {n:'Protein Bowl – Turkey',cal:190,pro:22,carb:10,fat:7,p:'$9.29'},
+    {n:'6" Oven Roasted Turkey',cal:280,pro:20,carb:40,fat:4,p:'$6.99'},
+    {n:'6" Black Forest Ham',cal:290,pro:20,carb:40,fat:5,p:'$6.49'},
+    {n:'6" Veggie Delite',cal:200,pro:9,carb:38,fat:3,p:'$5.99'},
+    {n:'Footlong Chicken & Bacon Ranch',cal:890,pro:52,carb:80,fat:40,p:'$13.99'},
+  ]},
+  {id:'panera',name:'Panera Bread',abbr:'PB',color:'#A0001E',lb:'#FFF0F2',
+   logo:'https://www.panerabread.com/favicon.ico',
+   url:'https://www.panerabread.com',
+   links:[{n:'Panera app',i:'🥖',s:'Rapid pickup available',u:'https://www.panerabread.com'},{n:'Uber Eats',i:'🚗',s:'Delivery available',u:'https://ubereats.com'}],
+   items:[
+    {n:'Chicken Quinoa Broth Bowl',cal:350,pro:28,carb:44,fat:7,p:'$11.99'},
+    {n:'Green Goddess Salad + Chicken',cal:510,pro:42,carb:28,fat:25,p:'$13.49',excl:['Dressing included in count — ask for it on the side to reduce']},
+    {n:'Napa Almond Chicken Salad',cal:490,pro:38,carb:34,fat:20,p:'$11.29',excl:['Almonds & granola included — omit to save ~80 kcal']},
+    {n:'Turkey Chili (bowl)',cal:290,pro:24,carb:34,fat:6,p:'$9.49'},
+    {n:'Fuji Apple Chicken Salad',cal:570,pro:36,carb:52,fat:22,p:'$12.99',excl:['Pecans included — omit to save ~90 kcal','White balsamic apple dressing included in count']},
+    {n:'Mediterranean Veggie Sandwich (half)',cal:370,pro:14,carb:56,fat:10,p:'$7.49'},
+    {n:'Chicken Caesar Salad',cal:480,pro:38,carb:22,fat:26,p:'$12.49',excl:['Caesar dressing included in count — ask for it on the side','Croutons included — omit to save ~60 kcal']},
+    {n:'Turkey Avocado BLT (half)',cal:430,pro:26,carb:40,fat:18,p:'$7.99'},
+    {n:'Broccoli Cheddar Soup (bowl)',cal:360,pro:13,carb:34,fat:20,p:'$8.49'},
+  ]},
+  {id:'cava',name:'CAVA',abbr:'CV',color:'#C8472B',lb:'#FFF2EF',
+   logo:'https://cava.com/favicon.ico',
+   url:'https://cava.com',
+   links:[{n:'CAVA app',i:'🫙',s:'Skip the line',u:'https://cava.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'}],
+   items:[
+    {n:'Grilled Chicken Bowl',cal:490,pro:46,carb:45,fat:14,p:'$12.95',ing:['Brown rice base','Grilled chicken','Hummus','Tzatziki','Tomato + cucumber','Pickled onions','Lemon herb tahini']},
+    {n:'Grilled Chicken Pita',cal:540,pro:46,carb:50,fat:16,p:'$12.95',ing:['Warm pita','Grilled chicken','Hummus','Tzatziki','Tomato + cucumber','Pickled onions','Feta']},
+    {n:'Harissa Honey Chicken Bowl',cal:580,pro:50,carb:55,fat:18,p:'$13.45',ing:['Brown rice base','Harissa honey chicken','Hummus','Roasted red pepper hummus','Pickled onions','Cabbage slaw','Feta','Lemon herb tahini']},
+    {n:'Spicy Lamb Meatball Bowl',cal:620,pro:44,carb:58,fat:24,p:'$13.95',ing:['Brown rice base','Spicy lamb meatballs','Hummus','Tzatziki','Tomato + cucumber','Pickled onions','Feta','Harissa']},
+    {n:'Roasted Veggie + Hummus Bowl',cal:410,pro:16,carb:58,fat:16,p:'$11.45',ing:['Greens base','Roasted seasonal veggies','Hummus','Roasted red pepper hummus','Tomato + cucumber','Cabbage slaw','Lemon herb tahini']},
+    {n:'Falafel Bowl',cal:670,pro:22,carb:82,fat:28,p:'$11.95',ing:['Brown rice base','Falafel (5 pcs)','Hummus','Tzatziki','Tomato + cucumber','Pickled onions','Cabbage slaw','Lemon herb tahini']},
+    {n:'Steak Bowl',cal:560,pro:48,carb:46,fat:20,p:'$14.45',ing:['Brown rice base','Grilled steak','Hummus','Tzatziki','Tomato + cucumber','Pickled onions','Feta','Lemon herb tahini']},
+    {n:'Salmon Bowl',cal:550,pro:40,carb:44,fat:22,p:'$14.95',ing:['Brown rice base','Harissa honey salmon','Hummus','Cabbage slaw','Tomato + cucumber','Pickled onions','Lemon herb tahini']},
+    {n:'Chicken + Greens Bowl (no grains)',cal:360,pro:44,carb:16,fat:14,p:'$12.95',ing:['Greens base (no grains)','Grilled chicken','Hummus','Tzatziki','Tomato + cucumber','Pickled onions','Lemon herb tahini']},
+  ]},
+  {id:'mcdonalds',name:"McDonald's",abbr:'MCD',color:'#DA020E',lb:'#FFF0F0',
+   logo:'https://www.mcdonalds.com/favicon.ico',
+   url:'https://www.mcdonalds.com',
+   links:[{n:"McDonald's app",i:'🍔',s:'Order pickup or delivery',u:'https://www.mcdonalds.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'},{n:'Uber Eats',i:'🚗',s:'Delivery available',u:'https://ubereats.com'}],
+   items:[
+    {n:'Egg McMuffin',cal:310,pro:17,carb:30,fat:13,p:'$4.49'},
+    {n:'Egg White Delight McMuffin',cal:260,pro:18,carb:29,fat:8,p:'$4.49'},
+    {n:'Grilled Chicken Sandwich',cal:380,pro:37,carb:44,fat:6,p:'$5.39'},
+    {n:'Premium Grilled Chicken Club',cal:570,pro:48,carb:52,fat:17,p:'$6.89'},
+    {n:'Southwest Grilled Chicken Salad',cal:350,pro:37,carb:27,fat:11,p:'$6.99',excl:['No dressing — Southwest dressing adds ~100 kcal','Tortilla strips not included (~70 kcal if added)']},
+    {n:'Bacon Ranch Grilled Chicken Salad',cal:320,pro:42,carb:10,fat:14,p:'$6.99',excl:['No dressing — Ranch dressing adds ~170 kcal']},
+    {n:'McDouble (no sauce)',cal:390,pro:23,carb:33,fat:18,p:'$3.19'},
+    {n:'Artisan Grilled Chicken Sandwich',cal:360,pro:37,carb:44,fat:6,p:'$5.39'},
+    {n:'Side Salad',cal:15,pro:1,carb:3,fat:0,p:'$1.99'},
+    {n:'Oatmeal (no brown sugar)',cal:260,pro:5,carb:48,fat:4,p:'$3.29'},
+  ]},
+  {id:'starbucks',name:'Starbucks',abbr:'SBX',color:'#00704A',lb:'#EDF7F3',
+   logo:'https://www.starbucks.com/favicon.ico',
+   url:'https://www.starbucks.com',
+   links:[{n:'Starbucks app',i:'☕',s:'Order ahead, earn rewards',u:'https://www.starbucks.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'}],
+   items:[
+    {n:'Spinach Feta Egg White Wrap',cal:290,pro:20,carb:33,fat:8,p:'$6.45'},
+    {n:'Egg & Cheddar Protein Box',cal:470,pro:23,carb:44,fat:22,p:'$7.45'},
+    {n:'Chicken & Quinoa Protein Bowl',cal:420,pro:28,carb:50,fat:12,p:'$8.95'},
+    {n:'Cheese & Fruit Protein Box',cal:470,pro:14,carb:54,fat:22,p:'$7.45'},
+    {n:'Turkey Bacon & Egg White Sandwich',cal:230,pro:17,carb:28,fat:5,p:'$5.45'},
+    {n:'Grilled Chicken & Hummus Protein Box',cal:480,pro:30,carb:48,fat:16,p:'$8.95'},
+    {n:'Sous Vide Egg Bites (2 ct)',cal:170,pro:13,carb:9,fat:9,p:'$5.95'},
+    {n:'Impossible Breakfast Sandwich',cal:430,pro:27,carb:45,fat:15,p:'$6.95'},
+    {n:'Oatmeal (plain)',cal:160,pro:5,carb:28,fat:3,p:'$4.45'},
+  ]},
+  {id:'tacobell',name:'Taco Bell',abbr:'TB',color:'#702082',lb:'#F5EDF9',
+   logo:'https://www.tacobell.com/favicon.ico',
+   url:'https://www.tacobell.com',
+   links:[{n:'Taco Bell app',i:'🌮',s:'Order pickup or delivery',u:'https://www.tacobell.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'},{n:'Uber Eats',i:'🚗',s:'Delivery available',u:'https://ubereats.com'}],
+   items:[
+    {n:'Power Menu Bowl – Chicken',cal:470,pro:26,carb:50,fat:19,p:'$7.49'},
+    {n:'Cantina Chicken Bowl',cal:490,pro:28,carb:56,fat:16,p:'$7.99'},
+    {n:'Grilled Chicken Soft Taco',cal:200,pro:14,carb:20,fat:7,p:'$3.29'},
+    {n:'Chicken Burrito (fresco style)',cal:390,pro:19,carb:57,fat:9,p:'$4.99'},
+    {n:'Bean Burrito',cal:350,pro:13,carb:56,fat:9,p:'$2.49'},
+    {n:'Chicken Chipotle Melt',cal:350,pro:18,carb:36,fat:14,p:'$4.49'},
+    {n:'Veggie Power Menu Bowl',cal:430,pro:15,carb:62,fat:14,p:'$6.99'},
+    {n:'Steak Soft Taco (fresco)',cal:160,pro:10,carb:20,fat:5,p:'$3.49'},
+    {n:'Black Bean Crunchwrap Supreme',cal:500,pro:15,carb:72,fat:17,p:'$5.99'},
+  ]},
+  {id:'wendys',name:"Wendy's",abbr:'WEN',color:'#E2231A',lb:'#FFF0F0',
+   logo:'https://www.wendys.com/favicon.ico',
+   url:'https://www.wendys.com',
+   links:[{n:"Wendy's app",i:'🍔',s:'Order pickup or delivery',u:'https://www.wendys.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'},{n:'Uber Eats',i:'🚗',s:'Delivery available',u:'https://ubereats.com'}],
+   items:[
+    {n:'Grilled Chicken Wrap',cal:310,pro:29,carb:26,fat:10,p:'$5.29'},
+    {n:'Grilled Chicken Sandwich',cal:370,pro:34,carb:36,fat:8,p:'$5.99'},
+    {n:'Apple Pecan Chicken Salad (half)',cal:340,pro:26,carb:28,fat:13,p:'$6.99',excl:['Pecans & dried cranberries included — omit pecans to save ~90 kcal','Pomegranate vinaigrette not included (~140 kcal)']},
+    {n:'Taco Salad',cal:620,pro:32,carb:52,fat:30,p:'$7.99',excl:['Tortilla chips included in count','Sour cream & salsa included']},
+    {n:'Jr. Hamburger (no mayo)',cal:240,pro:14,carb:26,fat:8,p:'$2.19'},
+    {n:'Small Chili',cal:170,pro:15,carb:16,fat:5,p:'$2.99'},
+    {n:'Large Chili',cal:250,pro:23,carb:23,fat:7,p:'$3.99'},
+    {n:'Parmesan Caesar Salad + Chicken',cal:480,pro:40,carb:20,fat:24,p:'$8.49',excl:['Caesar dressing included in count — ask for it on the side','Croutons included — omit to save ~60 kcal']},
+    {n:'Grilled Chicken BLT Salad',cal:430,pro:38,carb:18,fat:20,p:'$8.49',excl:['No dressing — Ranch dressing adds ~170 kcal']},
+  ]},
+  {id:'dunkin',name:"Dunkin'",abbr:'DD',color:'#E45C2B',lb:'#FFF3EF',
+   logo:'https://www.dunkindonuts.com/favicon.ico',
+   url:'https://www.dunkindonuts.com',
+   links:[{n:"Dunkin' app",i:'☕',s:'Order ahead, earn rewards',u:'https://www.dunkindonuts.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'}],
+   items:[
+    {n:'Egg & Cheese on English Muffin',cal:330,pro:16,carb:36,fat:13,p:'$4.49'},
+    {n:'Turkey Sausage Egg & Cheese',cal:400,pro:22,carb:38,fat:16,p:'$5.49'},
+    {n:'Veggie Egg White Flatbread',cal:330,pro:17,carb:40,fat:10,p:'$5.49'},
+    {n:'Bacon, Egg & Cheese on Croissant',cal:510,pro:20,carb:38,fat:30,p:'$5.49'},
+    {n:'Oatmeal (plain)',cal:200,pro:5,carb:38,fat:4,p:'$3.99'},
+    {n:'Wake-Up Wrap – Egg & Cheese',cal:180,pro:9,carb:16,fat:8,p:'$2.79'},
+    {n:'Wake-Up Wrap – Turkey Sausage',cal:210,pro:11,carb:17,fat:10,p:'$2.99'},
+    {n:'Ham, Egg & Cheese on English Muffin',cal:350,pro:21,carb:37,fat:13,p:'$4.99'},
+  ]},
+  {id:'panda',name:'Panda Express',abbr:'PE',color:'#C8102E',lb:'#FFF0F2',
+   logo:'https://www.pandaexpress.com/favicon.ico',
+   url:'https://www.pandaexpress.com',
+   links:[{n:'Panda Express app',i:'🥡',s:'Order pickup or delivery',u:'https://www.pandaexpress.com'},{n:'DoorDash',i:'🛵',s:'Delivery available',u:'https://doordash.com'},{n:'Uber Eats',i:'🚗',s:'Delivery available',u:'https://ubereats.com'}],
+   items:[
+    {n:'Grilled Teriyaki Chicken',cal:300,pro:34,carb:13,fat:13,p:'included'},
+    {n:'String Bean Chicken Breast',cal:190,pro:14,carb:15,fat:9,p:'included'},
+    {n:'Mushroom Chicken',cal:220,pro:15,carb:18,fat:10,p:'included'},
+    {n:'Broccoli Beef',cal:150,pro:9,carb:13,fat:7,p:'included'},
+    {n:'Super Greens (side)',cal:90,pro:6,carb:13,fat:2,p:'included'},
+    {n:'Mixed Veggies (side)',cal:70,pro:4,carb:14,fat:0,p:'included'},
+    {n:'Bowl – Teriyaki Chicken + Veggies (no rice)',cal:370,pro:40,carb:27,fat:15,p:'$9.40'},
+    {n:'Bowl – String Bean Chicken + Super Greens',cal:280,pro:20,carb:28,fat:11,p:'$9.40'},
+    {n:'Kung Pao Chicken',cal:290,pro:18,carb:22,fat:15,p:'included'},
+    {n:'Black Pepper Angus Steak',cal:190,pro:19,carb:10,fat:7,p:'included'},
+  ]},
+];
+
+// kcal per gram: protein=4, carbs=4, fat=9
+const KCAL={prot:4,carb:4,fat:9};
+
+function pct(id){const e=document.getElementById('sl-'+id);return((e.value-e.min)/(e.max-e.min)*100).toFixed(1)+'%'}
+
+// Returns the minimum calories implied by the current macro sliders (ignoring "any" toggles)
+function macroFloor(){
+  const dPro=document.getElementById('dc-prot').checked;
+  const dCar=document.getElementById('dc-carb').checked;
+  const dFat=document.getElementById('dc-fat').checked;
+  // protein & carbs are minimums; fat is a maximum — floor uses minimums only where set
+  const pro =dPro?0:+(document.getElementById('v-prot').value||0);
+  // carbs/fat are maximums so they don't contribute a guaranteed floor — but we warn if
+  // calorie ceiling < what minimum protein alone requires
+  return Math.round(pro*KCAL.prot);
+}
+
+// Recalculate and display the calorie hint
+function updateCalHint(){
+  const dCal=document.getElementById('dc-cal').checked;
+  const hint=document.getElementById('cal-hint');
+  if(dCal){hint.style.display='none';return}
+
+  const dPro=document.getElementById('dc-prot').checked;
+  const dCar=document.getElementById('dc-carb').checked;
+  const dFat=document.getElementById('dc-fat').checked;
+
+  const pro =dPro?0:+(document.getElementById('v-prot').value||0);
+  const carb=dCar?0:+(document.getElementById('v-carb').value||0);
+  const fat =dFat?0:+(document.getElementById('v-fat').value||0);
+  const mxCal=+(document.getElementById('v-cal').value||0);
+
+  // Minimum calories from protein minimum (guaranteed intake)
+  const protFloor=Math.round(pro*KCAL.prot);
+  // Max calories possible from macro ceilings
+  const macroMax=Math.round(pro*KCAL.prot + carb*KCAL.carb + fat*KCAL.fat);
+
+  const parts=[];
+  if(!dPro && pro>0) parts.push(`${pro}g protein = ${Math.round(pro*KCAL.prot)} kcal`);
+  if(!dCar && carb>0) parts.push(`${carb}g carbs = ${Math.round(carb*KCAL.carb)} kcal`);
+  if(!dFat && fat>0)  parts.push(`${fat}g fat = ${Math.round(fat*KCAL.fat)} kcal`);
+
+  if(parts.length===0){hint.style.display='none';return}
+
+  let msg=parts.join(' · ')+` → ${macroMax} kcal max from macros`;
+
+  if(protFloor>mxCal){
+    msg=`⚠ Your protein minimum alone requires at least ${protFloor} kcal — raise your calorie ceiling or toggle "any" on protein. `+msg;
+    hint.style.background='var(--red-bg)';
+    hint.style.color='var(--red)';
+    hint.style.borderColor='rgba(192,57,43,.18)';
+  } else if(macroMax<mxCal){
+    msg+=' — calorie ceiling has headroom above your macros';
+    hint.style.background='var(--green-bg)';
+    hint.style.color='var(--green)';
+    hint.style.borderColor='rgba(26,122,74,.18)';
+  } else {
+    hint.style.background='var(--amber-bg)';
+    hint.style.color='var(--amber)';
+    hint.style.borderColor='rgba(180,83,9,.18)';
+  }
+
+  hint.textContent=msg;
+  hint.style.display='block';
+}
+
+function slide(id){
+  const sl=document.getElementById('sl-'+id);
+  const vi=document.getElementById('v-'+id);
+  sl.style.setProperty('--p',pct(id));
+  if(!document.getElementById('dc-'+id).checked) vi.value=sl.value;
+  updateCalHint();
+}
+
+function typeVal(id){
+  const vi=document.getElementById('v-'+id);
+  const sl=document.getElementById('sl-'+id);
+  const val=parseInt(vi.value);
+  if(!isNaN(val)){
+    const clamped=Math.min(+sl.max,Math.max(+sl.min,val));
+    sl.value=clamped;
+    sl.style.setProperty('--p',pct(id));
+  }
+  updateCalHint();
+}
+
+function clampVal(id){
+  const vi=document.getElementById('v-'+id);
+  const sl=document.getElementById('sl-'+id);
+  if(document.getElementById('dc-'+id).checked) return;
+  let val=parseInt(vi.value);
+  if(isNaN(val)||val<+sl.min) val=+sl.min;
+  if(val>+sl.max) val=+sl.max;
+  vi.value=val; sl.value=val;
+  sl.style.setProperty('--p',pct(id));
+  updateCalHint();
+}
+
+function dc(id){
+  const on=document.getElementById('dc-'+id).checked;
+  const sl=document.getElementById('sl-'+id);
+  const vi=document.getElementById('v-'+id);
+  sl.disabled=on; vi.disabled=on;
+  vi.style.opacity=on?'0.3':'1';
+  updateCalHint();
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  ['cal','prot','carb','fat'].forEach(id=>document.getElementById('sl-'+id).style.setProperty('--p',pct(id)));
+  // carb and fat default to "any" — sliders already disabled in HTML
+  updateCalHint();
+});
+
+function find(){
+  const dCal=document.getElementById('dc-cal').checked;
+  const dPro=document.getElementById('dc-prot').checked;
+  const dCar=document.getElementById('dc-carb').checked;
+  const dFat=document.getElementById('dc-fat').checked;
+  let mxCal=+(document.getElementById('v-cal').value||0);
+
+  // Enforce calorie floor: protein*4 kcal minimum
+  if(!dCal && !dPro){
+    const floor=Math.round(+(document.getElementById('v-prot').value||0)*KCAL.prot);
+    if(floor>mxCal){
+      mxCal=floor;
+      const sl=document.getElementById('sl-cal');
+      const vi=document.getElementById('v-cal');
+      const clamped=Math.min(floor,+sl.max);
+      sl.value=clamped; vi.value=clamped;
+      sl.style.setProperty('--p',pct('cal'));
+      updateCalHint();
+    }
+  }
+  const mnPro=+(document.getElementById('v-prot').value||0);
+  const mxCar=+(document.getElementById('v-carb').value||0);
+  const mxFat=+(document.getElementById('v-fat').value||0);
+  const active=[];
+  if(!dCal)active.push('cal');if(!dPro)active.push('prot');
+  if(!dCar)active.push('carb');if(!dFat)active.push('fat');
+
+  let total=0,allItems=[];
+  DB.forEach(r=>{
+    r.items.forEach(it=>{
+      const passes=
+        (dCal||it.cal<=mxCal)&&(dPro||it.pro>=mnPro)&&
+        (dCar||it.carb<=mxCar)&&(dFat||it.fat<=mxFat);
+      if(!passes)return;
+      // compute fit score: higher = better match
+      let score=0;
+      if(!dCal)  score+=1-Math.abs(it.cal-mxCal)/mxCal;
+      if(!dPro)  score+=it.pro/(mnPro||1);
+      if(!dCar)  score+=1-it.carb/(mxCar||1);
+      if(!dFat)  score+=1-it.fat/(mxFat||1);
+      allItems.push({it,r,score});
+      total++;
+    });
+  });
+
+  allItems.sort((a,b)=>b.score-a.score);
+
+  document.getElementById('rl-list').innerHTML=total
+    ? allItems.map((x,i)=>icHTML(x.it,x.r,i===0,active,{mxCal,mnPro,mxCar,mxFat})).join('')
+    : '<div class="empty"><div style="font-size:32px">🤷</div><div class="empty-t">Nothing fits right now</div><div class="empty-s">Try raising your calorie ceiling, lowering your protein minimum, or toggling "any" on a stricter macro.</div></div>';
+  document.getElementById('rb').textContent=total+(total===1?' meal':' meals');
+  const rw=document.getElementById('rw');
+  rw.classList.add('on');
+  document.getElementById('price-note').style.display= total ? 'block' : 'none';
+  rw.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function icHTML(it,r,top,active,{mxCal,mnPro,mxCar,mxFat}){
+  const bars=active.map(id=>{
+    let val,ref,label,bc,over=false;
+    if(id==='cal') {val=it.cal; ref=mxCal; label='Cal';    bc='#F59E0B'; over=val>ref}
+    if(id==='prot'){val=it.pro; ref=mnPro; label='Protein';bc='#22C55E'}
+    if(id==='carb'){val=it.carb;ref=mxCar; label='Carbs';  bc='#60A5FA'; over=val>ref}
+    if(id==='fat') {val=it.fat; ref=mxFat; label='Fat';    bc='#A78BFA'; over=val>ref}
+    const fp=Math.min(100,ref>0?Math.round(val/ref*100):100);
+    const tc=over?'var(--red)':(fp>=90?'var(--amber)':'var(--ink3)');
+    return`<div class="fb"><div class="fb-l">${label}</div><div class="fb-t"><div class="fb-f" style="width:${fp}%;background:${over?'var(--red)':bc}"></div></div><div class="fb-p" style="color:${tc}">${fp}%</div></div>`;
+  }).join('');
+
+  const eid=r.id;
+  const enm=it.n.replace(/'/g,'\x27').replace(/"/g,'\x22');
+  const price=it.p&&it.p!=='included'?it.p:'';
+
+  return`<div class="ic${top?' top':''}">
+    ${top?'<div class="tp-badge">Best fit</div>':''}
+    <div class="ic-chain-row">
+      <div class="ic-logo" style="background:${r.lb}">
+        <img src="${r.logo}" alt="${r.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span style="display:none;font-size:9px;font-weight:800;color:${r.color}">${r.abbr}</span>
+      </div>
+      <span class="ic-chain-name">${r.name}</span>
+      ${price?`<span class="ic-price" title="Estimated price — may vary by location">~${price}</span>`:''}
+    </div>
+    <div class="ic-name">${it.n}</div>
+    ${it.ing&&it.ing.length?`<div class="ic-ings">${it.ing.map(i=>`<span class="ic-ing">${i}</span>`).join('')}</div>`:''}
+    ${it.excl&&it.excl.length?`<div class="ic-excl">${it.excl.map(e=>`<div class="ic-excl-item">⚠ ${e}</div>`).join('')}</div>`:''}
+    <div class="chips">
+      <span class="ch ch-cal">${it.cal} kcal</span>
+      <span class="ch ch-prot">${it.pro}g protein</span>
+      <span class="ch ch-carb">${it.carb}g carbs</span>
+      <span class="ch ch-fat">${it.fat}g fat</span>
+    </div>
+    ${active.length?`<div class="fbars">${bars}</div>`:''}
+  </div>`;
+}
+
+function osht(rid,nm){
+  const r=DB.find(x=>x.id===rid);
+  const it=r.items.find(x=>x.n===nm);
+  if(!it)return;
+  document.getElementById('sh-n').textContent=it.n;
+  document.getElementById('sh-r').textContent=r.name+(it.p&&it.p!=='included'?' · '+it.p:'');
+  document.getElementById('sh-m').innerHTML=[
+    {v:it.cal,l:'kcal',c:'var(--amber)'},{v:it.pro+'g',l:'protein',c:'var(--green)'},
+    {v:it.carb+'g',l:'carbs',c:'var(--blue)'},{v:it.fat+'g',l:'fat',c:'var(--purple)'},
+  ].map(m=>`<div class="sm"><div class="sm-v" style="color:${m.c}">${m.v}</div><div class="sm-l">${m.l}</div></div>`).join('');
+  document.getElementById('sh-l').innerHTML=r.links.map(l=>`<div class="ol" onclick="window.open('${l.u}','_blank')"><div class="ol-i">${l.i}</div><div class="ol-t"><div class="ol-n">${l.n}</div><div class="ol-s">${l.s}</div></div><div class="ol-a">›</div></div>`).join('');
+  document.getElementById('ov').classList.add('open');
+}
+
+function csht(e){if(e.target===document.getElementById('ov'))document.getElementById('ov').classList.remove('open')}
+</script>
+</body>
+</html>
